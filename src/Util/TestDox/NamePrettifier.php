@@ -37,6 +37,8 @@ final class NamePrettifier
 
     /**
      * Prettifies the name of a test class.
+     *
+     * @psalm-param class-string $className
      */
     public function prettifyTestClass(string $className): string
     {
@@ -47,6 +49,7 @@ final class NamePrettifier
                 return $annotations['class']['testdox'][0];
             }
         } catch (UtilException $e) {
+            // ignore, determine className by parsing the provided name
         }
 
         $parts     = \explode('\\', $className);
@@ -60,6 +63,10 @@ final class NamePrettifier
             $className = \substr($className, \strlen('Tests'));
         } elseif (\strpos($className, 'Test') === 0) {
             $className = \substr($className, \strlen('Test'));
+        }
+
+        if (empty($className)) {
+            $className = 'UnnamedTests';
         }
 
         if (!empty($parts)) {

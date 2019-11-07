@@ -539,13 +539,27 @@ class TestSuite implements \IteratorAggregate, SelfDescribing, Test
 
             return $result;
         } catch (\Throwable $t) {
+            $errorAdded = false;
+
             foreach ($this->tests() as $test) {
                 if ($result->shouldStop()) {
                     break;
                 }
 
                 $result->startTest($test);
-                $result->addError($test, $t, 0);
+
+                if (!$errorAdded) {
+                    $result->addError($test, $t, 0);
+
+                    $errorAdded = true;
+                } else {
+                    $result->addFailure(
+                        $test,
+                        new SkippedTestError('Test skipped because of an error in hook method'),
+                        0
+                    );
+                }
+
                 $result->endTest($test, 0);
             }
 
